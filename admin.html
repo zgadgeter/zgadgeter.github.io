@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Guestbook Admin</title>
+    <style>
+        html, body { margin: 0; background: #0b0b0b; color: #f5f5f7; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 28px 16px 48px; }
+        .wrap { max-width: 760px; margin: 0 auto; }
+        h1 { font-weight: 300; letter-spacing: 1px; margin: 0 0 20px; }
+        h2 { font-weight: 400; font-size: 1.05rem; color: #d2d2d7; margin: 32px 0 12px; }
+        .login { display: flex; gap: 10px; flex-wrap: wrap; }
+        input { flex: 1; min-width: 200px; background: #000; color: #fff; border: 1px solid #333; border-radius: 8px; padding: 11px 12px; font: inherit; }
+        button { border: 0; border-radius: 999px; padding: 9px 18px; font: inherit; font-size: .9rem; cursor: pointer; }
+        .primary { background: #f5f5f7; color: #000; }
+        .approve { background: #2f6f3e; color: #fff; }
+        .delete { background: #3a1f1f; color: #ffb4a8; }
+        .ghost { background: none; color: #8e8e93; border: 1px solid #333; }
+        .card { background: #111; border: 1px solid #222; border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+        .card p { margin: 0 0 10px; white-space: pre-wrap; line-height: 1.6; }
+        .meta { font-size: .85rem; color: #8e8e93; margin-bottom: 12px; }
+        .meta strong { color: #f5f5f7; }
+        .btns { display: flex; gap: 8px; }
+        .msg { color: #ffb4a8; min-height: 1.2em; }
+        .none { color: #6e6e73; }
+        .bar { display: flex; justify-content: space-between; align-items: center; }
+        [hidden] { display: none !important; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="bar"><h1>Guestbook Admin</h1><button class="ghost" id="logout" hidden>Log out</button></div>
+
+    <form class="login" id="login">
+        <input type="password" id="pw" placeholder="Admin password" autocomplete="current-password">
+        <button class="primary" type="submit">Open</button>
+    </form>
+    <p class="msg" id="msg"></p>
+
+    <div id="panel" hidden>
+        <h2 id="pendingTitle">Waiting for approval</h2>
+        <div id="pending"></div>
+        <h2 id="approvedTitle">Published</h2>
+        <div id="approved"></div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var API = "https://ray-candles.zgadgeter.workers.dev";
+    var pw = "";
+    try { pw = sessionStorage.getItem("gbpw") || ""; } catch (e) {}
+
+    var $ = function (id) { return document.getElementById(id); };
+
+    function call(path, method, body) {
+        return fetch(API + path, {
+            method: method || "GET",
+            headers: { "Authorization": "Bearer " + pw, "Content-Type": "application/json" },
+            body: body ? JSON.stringify(body) : undefined
+        }).then(function (r) { return r.json().then(function (d) { if (!r.ok) throw new Error(d.error || "Error"); return d; }); });
+    }
+
+    function card(m, isPending) {
+        var c = document.createElement("div"); c.className = "card";
+        var meta = document.createElement("div"); meta.className = "meta";
+        var who = document.createElement("strong"); who.textContent = m.name;
+        meta.appendChild(who);
+        meta.appendChild(document.createTextNode((m.relation ? " · " + m.relation : "") + " · " + new Date(m.date).toLocaleString("de-DE")));
+        var p = document.createElement("p"); p.textContent = m.message;
+        var btns = document.createElement("div"); btns.className = "btns";
+        if (isPending) {
+            var a = document.createElement("button"); a.className = "approve"; a.textContent = "Approve";
+            a.onclick = function () { act("/admin/approve", m.id, a); };
+            btns.appendChild(a);
+        }
+        var d = document.createElement("button"); d.className = "delete"; d.textContent = "Delete";
+        d.onclick = function () { if (confirm("Delete this message permanently?")) act("/admin/delete", m.id, d); };
+        btns.appendChild(d);
+        c.appendChild(meta); c.appendChild(p); c.appendChild(btns);
+        return c;
+    }
+
+    function fill(el, items, isPending) {
+        el.textContent = "";
+        if (!items.length) { var n = document.createElement("p"); n.className = "none"; n.textContent = "None."; el.appendChild(n); return; }
+        items.forEach(function (m) { el.appendChild(card(m, isPending)); });
+    }
+
+    function load() {
+        $("msg").textContent = "Loading…";
+        return call("/admin/memories").then(function (d) {
+            $("msg").textContent = "";
+            $("login").hidden = true; $("panel").hidden = false; $("logout").hidden = false;
+            $("pendingTitle").textContent = "Waiting for approval (" + d.pending.length + ")";
+            $("approvedTitle").textContent = "Published (" + d.approved.length + ")";
+            fill($("pending"), d.pending, true);
+            fill($("approved"), d.approved, false);
+        }).catch(function (e) {
+            $("msg").textContent = e.message;
+            $("login").hidden = false; $("panel").hidden = true;
+        });
+    }
+
+    function act(path, id, btn) {
+        btn.disabled = true;
+        call(path, "POST", { id: id }).then(load).catch(function (e) { $("msg").textContent = e.message; btn.disabled = false; });
+    }
+
+    $("login").addEventListener("submit", function (e) {
+        e.preventDefault();
+        pw = $("pw").value;
+        try { sessionStorage.setItem("gbpw", pw); } catch (err) {}
+        load();
+    });
+    $("logout").addEventListener("click", function () {
+        try { sessionStorage.removeItem("gbpw"); } catch (e) {}
+        location.reload();
+    });
+
+    if (pw) load();
+})();
+</script>
+</body>
+</html>
