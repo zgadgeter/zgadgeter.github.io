@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share a Memory of Ray</title>
+    <meta name="description" content="Share a memory or leave a message in memory of Ray Henry Johnson, Jr.">
+    <style>
+        html, body { margin: 0; background: #000; color: #f5f5f7; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 32px 16px 48px; }
+        .wrap { max-width: 720px; margin: 0 auto; }
+        .back { display: inline-block; margin-bottom: 28px; color: #a1a1a6; text-decoration: none; letter-spacing: 1px; font-size: .95rem; }
+        .back:hover { color: #fff; }
+        header { text-align: center; margin-bottom: 32px; }
+        header .portrait { width: 120px; height: 120px; margin: 0 auto; border-radius: 50%; border: 1px solid #333; background: url("Ray_Memorial.jpg") 60% 19% / 220% auto no-repeat; }
+        h1 { font-weight: 300; letter-spacing: 2px; margin: 18px 0 10px; font-size: 1.8rem; }
+        .intro { color: #a1a1a6; line-height: 1.6; margin: 0 auto; max-width: 560px; }
+        .book { background: #0d0d0d; border: 1px solid #222; border-radius: 12px; padding: 20px; }
+        .notice { color: #a1a1a6; text-align: center; padding: 24px 8px; line-height: 1.6; }
+        footer { text-align: center; margin-top: 32px; font-size: .75rem; }
+        footer a { color: #6e6e73; text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+
+    <a class="back" href="index.html">&larr; Back</a>
+
+    <header>
+        <div class="portrait" role="img" aria-label="Ray as a boy"></div>
+        <h1>Share a Memory of Ray</h1>
+        <p class="intro">
+            A story, a moment you shared, or simply a few words. Messages appear here
+            once the family has read them.
+        </p>
+    </header>
+
+    <div class="book">
+        <!-- ▼ Replace YOUR-CUSDIS-APP-ID with the App ID from your Cusdis dashboard (see SETUP.md) -->
+        <div id="cusdis_thread"
+             data-host="https://cusdis.com"
+             data-app-id="YOUR-CUSDIS-APP-ID"
+             data-page-id="ray-guestbook"
+             data-page-url="https://www.rayhenryjohnson.de/guestbook.html"
+             data-page-title="Guestbook – Ray Henry Johnson, Jr."
+             data-theme="dark"></div>
+        <p class="notice" id="notice" hidden>The guestbook is being set up and will be available shortly.</p>
+    </div>
+
+    <footer><a href="privacy.html">Privacy / Datenschutz</a></footer>
+</div>
+
+<script>
+    (function () {
+        var el = document.getElementById("cusdis_thread");
+        if (el.getAttribute("data-app-id").indexOf("YOUR-") === 0) {
+            document.getElementById("notice").hidden = false;
+            return;
+        }
+        var s = document.createElement("script");
+        s.src = "https://cusdis.com/js/cusdis.es.js";
+        s.async = true; s.defer = true;
+        document.body.appendChild(s);
+    })();
+</script>
+</body>
+</html>

@@ -14,30 +14,73 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             min-height: 100vh;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 24px 16px 40px; box-sizing: border-box; text-align: center;
+            padding: 24px 16px 20px; box-sizing: border-box; text-align: center;
         }
         h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
         .memorial {
-            display: block;
-            max-width: 100%;
-            max-height: calc(100vh - 140px);
-            width: auto; height: auto;
+            display: block; max-width: 100%;
+            max-height: calc(100vh - 250px); min-height: 320px;
+            width: auto; height: auto; object-fit: contain;
             animation: fade 1.6s ease-out both;
         }
-        .gallery-link {
-            display: inline-block; margin-top: 28px;
-            padding: 12px 28px;
+
+        /* ---------- Candle ---------- */
+        .candle-area { margin-top: 26px; animation: fade 1.6s 0.6s ease-out both; }
+        .candle-btn {
+            display: inline-flex; align-items: flex-end; gap: 14px;
+            background: none; border: 0; padding: 4px 8px; cursor: pointer;
+            color: #f5f5f7; font: inherit; font-size: 1.05rem; font-weight: 300; letter-spacing: 1.5px;
+        }
+        .candle-btn:focus-visible { outline: 1px solid rgba(255,255,255,.5); outline-offset: 6px; border-radius: 6px; }
+        .candle { position: relative; width: 14px; height: 46px; flex: none; }
+        .candle .wax {
+            position: absolute; bottom: 0; left: 0; width: 14px; height: 30px;
+            background: linear-gradient(90deg, #d9d2c3, #f4efe4 45%, #c9c1b0);
+            border-radius: 2px 2px 3px 3px;
+        }
+        .candle .wick { position: absolute; bottom: 30px; left: 6px; width: 2px; height: 5px; background: #333; }
+        .candle .flame {
+            position: absolute; bottom: 33px; left: 2px; width: 10px; height: 18px;
+            background: radial-gradient(ellipse at 50% 80%, #fff8d6 0%, #ffd36b 35%, #ff9a2e 65%, rgba(255,120,0,0) 75%);
+            border-radius: 50% 50% 45% 45% / 65% 65% 35% 35%;
+            transform-origin: 50% 90%;
+            opacity: 0; transform: scale(.2);
+            transition: opacity .6s ease, transform .6s ease;
+            filter: drop-shadow(0 0 6px rgba(255,170,60,.8));
+        }
+        .candle-btn:hover .flame { opacity: .35; transform: scale(.7); }
+        .lit .candle .flame, .lit .candle-btn:hover .flame {
+            opacity: 1; transform: scale(1);
+            animation: flicker 2.2s infinite ease-in-out .6s;
+        }
+        .lit .candle-btn { cursor: default; }
+        .candle-count { margin: 10px 0 0; font-size: .9rem; color: #a1a1a6; letter-spacing: .5px; min-height: 1.3em; }
+        @keyframes flicker {
+            0%,100% { transform: scale(1) rotate(-1deg); }
+            25% { transform: scale(1.05, .95) rotate(1.5deg); }
+            50% { transform: scale(.96, 1.04) rotate(-.5deg); }
+            75% { transform: scale(1.03, .98) rotate(1deg); }
+        }
+
+        /* ---------- Links ---------- */
+        .links { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 22px; animation: fade 1.6s 1s ease-out both; }
+        .pill {
+            display: inline-block; padding: 11px 24px;
             color: #f5f5f7; text-decoration: none;
-            font-size: 1.05rem; font-weight: 300; letter-spacing: 2px;
+            font-size: 1rem; font-weight: 300; letter-spacing: 2px;
             border: 1px solid rgba(255,255,255,0.45); border-radius: 999px;
-            transition: background 0.2s, border-color 0.2s, color 0.2s;
-            animation: fade 1.6s 0.8s ease-out both;
+            transition: background .2s, border-color .2s, color .2s;
         }
-        .gallery-link:hover, .gallery-link:focus-visible {
-            background: #f5f5f7; color: #000; border-color: #f5f5f7; outline: none;
-        }
+        .pill:hover, .pill:focus-visible { background: #f5f5f7; color: #000; border-color: #f5f5f7; outline: none; }
+        footer { margin-top: 28px; font-size: .75rem; }
+        footer a { color: #6e6e73; text-decoration: none; }
+        footer a:hover { color: #a1a1a6; }
+
         @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-        @media (prefers-reduced-motion: reduce) { .memorial, .gallery-link { animation: none; } }
+        @media (prefers-reduced-motion: reduce) {
+            .memorial, .candle-area, .links { animation: none; }
+            .lit .candle .flame { animation: none; }
+        }
     </style>
 </head>
 <body>
@@ -47,7 +90,61 @@
     <img class="memorial" src="Ray_Memorial.jpg"
          alt="Ray Henry Johnson, Jr. as a boy, sitting barefoot on a rock in a stony riverbed. October 10, 1964 – November 4, 2000. It is not real to me that he is gone …">
 
-    <a class="gallery-link" href="gallery.html">View photos of Ray</a>
+    <div class="candle-area" id="candleArea">
+        <button class="candle-btn" id="candleBtn" type="button" aria-describedby="candleCount">
+            <span class="candle" aria-hidden="true"><span class="flame"></span><span class="wick"></span><span class="wax"></span></span>
+            <span id="candleLabel">Light a candle for Ray</span>
+        </button>
+        <p class="candle-count" id="candleCount" aria-live="polite"></p>
+    </div>
 
+    <nav class="links">
+        <a class="pill" href="gallery.html">View photos of Ray</a>
+        <a class="pill" href="guestbook.html">Share a memory</a>
+    </nav>
+
+    <footer><a href="privacy.html">Privacy / Datenschutz</a></footer>
+
+    <script>
+    (function () {
+        // ▼ Paste your Cloudflare Worker address here (see SETUP.md)
+        var CANDLE_API = "https://ray-candles.YOUR-SUBDOMAIN.workers.dev/candles";
+
+        var area = document.getElementById("candleArea");
+        var btn = document.getElementById("candleBtn");
+        var label = document.getElementById("candleLabel");
+        var countEl = document.getElementById("candleCount");
+        var configured = CANDLE_API.indexOf("YOUR-SUBDOMAIN") === -1;
+
+        function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+        function showCount(n) {
+            if (typeof n !== "number" || n < 1) { countEl.textContent = ""; return; }
+            countEl.textContent = n === 1 ? "1 candle has been lit for Ray" : n.toLocaleString("en-US") + " candles have been lit for Ray";
+        }
+        function setLit() {
+            area.classList.add("lit");
+            label.textContent = "Your candle is burning for Ray";
+            btn.setAttribute("aria-pressed", "true");
+        }
+
+        // Show the visitor's own candle if they lit one in the last 6 hours
+        var litAt = parseInt(store("candleLitAt") || "0", 10);
+        if (Date.now() - litAt < 6 * 3600 * 1000) setLit();
+
+        if (configured) {
+            fetch(CANDLE_API).then(function (r) { return r.json(); })
+                .then(function (d) { showCount(d.count); }).catch(function () {});
+        }
+
+        btn.addEventListener("click", function () {
+            if (area.classList.contains("lit")) return;
+            setLit();
+            store("candleLitAt", String(Date.now()));
+            if (!configured) return;
+            fetch(CANDLE_API, { method: "POST" }).then(function (r) { return r.json(); })
+                .then(function (d) { showCount(d.count); }).catch(function () {});
+        });
+    })();
+    </script>
 </body>
 </html>
