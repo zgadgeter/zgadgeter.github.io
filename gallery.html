@@ -5,42 +5,137 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ray Henry Johnson - Photo Gallery</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #121212; color: #ffffff; text-align: center; padding: 40px 20px; margin: 0; }
-        h1 { font-weight: 300; letter-spacing: 2px; margin-bottom: 40px; color: #f5f5f7; }
-        .back { display: inline-block; margin-bottom: 24px; color: #a1a1a6; text-decoration: none; letter-spacing: 1px; font-size: 0.95rem; }
-        .back:hover { color: #ffffff; }
-        .gallery { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; max-width: 1400px; margin: 0 auto; }
-        .gallery a { border: 3px solid #222; box-shadow: 0 4px 12px rgba(0,0,0,0.5); transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.2s; border-radius: 8px; overflow: hidden; background: #1e1e1e; }
-        .gallery a:hover { transform: scale(1.03); border-color: #0071e3; box-shadow: 0 6px 20px rgba(0, 113, 227, 0.3); }
-        .gallery img { width: 280px; height: 200px; object-fit: cover; display: block; }
+        html, body { margin: 0; background: #121212; color: #fff; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; padding: 40px 16px; }
+        h1 { font-weight: 300; letter-spacing: 2px; margin: 0 0 36px; color: #f5f5f7; }
+        .back { display: inline-block; margin-bottom: 24px; color: #a1a1a6; text-decoration: none; letter-spacing: 1px; font-size: .95rem; }
+        .back:hover { color: #fff; }
+        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; max-width: 1400px; margin: 0 auto; }
+        .tile { margin: 0; border: 3px solid #222; border-radius: 8px; overflow: hidden; background: #1e1e1e; cursor: zoom-in;
+                box-shadow: 0 4px 12px rgba(0,0,0,.5); transition: transform .2s cubic-bezier(.2,.8,.2,1), border-color .2s; }
+        .tile:hover, .tile:focus-visible { transform: scale(1.03); border-color: #0071e3; outline: none; }
+        .tile img { width: 100%; height: 200px; object-fit: cover; display: block; background: #222; }
+        .tile figcaption { padding: 9px 10px 10px; font-size: .85rem; color: #c7c7cc; text-align: left; line-height: 1.35; }
+        .status { color: #8e8e93; margin: 40px 0; }
+
+        /* Viewer */
+        .viewer { position: fixed; inset: 0; background: rgba(0,0,0,.94); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; padding: 16px; box-sizing: border-box; }
+        .viewer.open { display: flex; }
+        .viewer img { max-width: 100%; max-height: calc(100vh - 110px); object-fit: contain; box-shadow: 0 10px 40px rgba(0,0,0,.6); }
+        .viewer p { color: #d2d2d7; margin: 14px 0 0; min-height: 1.3em; font-size: .95rem; }
+        .vbtn { position: absolute; background: rgba(255,255,255,.08); color: #fff; border: 0; border-radius: 999px; width: 48px; height: 48px; font-size: 26px; line-height: 48px; cursor: pointer; }
+        .vbtn:hover { background: rgba(255,255,255,.2); }
+        .prev { left: 14px; top: 50%; transform: translateY(-50%); }
+        .next { right: 14px; top: 50%; transform: translateY(-50%); }
+        .close { right: 14px; top: 14px; font-size: 22px; }
+        .counter { position: absolute; left: 18px; top: 26px; color: #8e8e93; font-size: .85rem; }
+        @media (max-width: 600px) { .prev, .next { top: auto; bottom: 14px; transform: none; } .viewer img { max-height: calc(100vh - 150px); } }
     </style>
 </head>
 <body>
 
     <a class="back" href="index.html">&larr; Back</a>
-
     <h1>Ray Henry Johnson - Photo Gallery</h1>
 
-    <div class="gallery">
-        <!-- Main Photos Section -->
-        <a href="Ray.jpg" target="_blank"><img src="Ray.jpg" alt="Ray" loading="lazy"></a>
-        <a href="Ray_June85.jpg" target="_blank"><img src="Ray_June85.jpg" alt="Ray June 85" loading="lazy"></a>
-        <a href="RaySchoolPicture(2017_11_0418_23_33UTC)(2020_02_0219_58_15UTC).jpg" target="_blank"><img src="RaySchoolPicture(2017_11_0418_23_33UTC)(2020_02_0219_58_15UTC).jpg" alt="Ray School Picture" loading="lazy"></a>
-        <a href="RAyFootball.jpg" target="_blank"><img src="RAyFootball.jpg" alt="Ray Football" loading="lazy"></a>
-        <a href="RayFootball2.jpg" target="_blank"><img src="RayFootball2.jpg" alt="Ray Football 2" loading="lazy"></a>
-        <a href="Ty_Yas_Ray_1983.jpg" target="_blank"><img src="Ty_Yas_Ray_1983.jpg" alt="Ty Yas Ray 1983" loading="lazy"></a>
-        <a href="TyandRay.jpg" target="_blank"><img src="TyandRay.jpg" alt="Ty and Ray" loading="lazy"></a>
+    <div class="gallery" id="gallery"></div>
+    <p class="status" id="status">Loading photos…</p>
 
-        <!-- Scanned Archive Section -->
-        <a href="ScannedOldPictures(7).JPG" target="_blank"><img src="ScannedOldPictures(7).JPG" alt="Scanned Picture 7" loading="lazy"></a>
-        <a href="ScannedOldPictures(12).JPG" target="_blank"><img src="ScannedOldPictures(12).JPG" alt="Scanned Picture 12" loading="lazy"></a>
-        <a href="ScannedOldPictures(15).JPG" target="_blank"><img src="ScannedOldPictures(15).JPG" alt="Scanned Picture 15" loading="lazy"></a>
-        <a href="ScannedOldPictures(109).JPG" target="_blank"><img src="ScannedOldPictures(109).JPG" alt="Scanned Picture 109" loading="lazy"></a>
-        <a href="ScannedOldPictures(128).JPG" target="_blank"><img src="ScannedOldPictures(128).JPG" alt="Scanned Picture 128" loading="lazy"></a>
-        <a href="ScannedOldPictures(250).JPG" target="_blank"><img src="ScannedOldPictures(250).JPG" alt="Scanned Picture 250" loading="lazy"></a>
-        <a href="ScannedOldPictures(292).JPG" target="_blank"><img src="ScannedOldPictures(292).JPG" alt="Scanned Picture 292" loading="lazy"></a>
-        <a href="ScannedOldPictures(298).JPG" target="_blank"><img src="ScannedOldPictures(298).JPG" alt="Scanned Picture 298" loading="lazy"></a>
+    <div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Photo viewer">
+        <span class="counter" id="vCount"></span>
+        <button class="vbtn close" id="vClose" aria-label="Close">&times;</button>
+        <button class="vbtn prev" id="vPrev" aria-label="Previous photo">&lsaquo;</button>
+        <img id="vImg" alt="">
+        <p id="vCap"></p>
+        <button class="vbtn next" id="vNext" aria-label="Next photo">&rsaquo;</button>
     </div>
 
+<script>
+(function () {
+    // Every image in the "photos" folder of this GitHub repository is shown automatically.
+    var REPO = "zgadgeter/zgadgeter.github.io";
+    var FOLDER = "photos";
+    var API = "https://api.github.com/repos/" + REPO + "/contents/" + FOLDER;
+    var IMG = /\.(jpe?g|png|gif|webp)$/i;
+
+    var gallery = document.getElementById("gallery");
+    var statusEl = document.getElementById("status");
+    var photos = [];
+
+    // "1983_Ty_Yas_and_Ray_restored.jpg" -> "1983 · Ty Yas and Ray (restored)"; names starting with "Scan" get no caption.
+    function caption(file) {
+        var base = file.replace(/\.[^.]+$/, "");
+        if (/^(scan|img|dsc|photo)[\s_-]*/i.test(base)) return "";
+        var restored = /[_\s-]restored$/i.test(base);
+        base = base.replace(/[_\s-]restored$/i, "").replace(/[_-]+/g, " ").trim();
+        base = base.replace(/^(\d{4})\s+/, "$1 · ");
+        return base + (restored ? " (restored)" : "");
+    }
+
+    function render(files) {
+        photos = files.filter(function (f) { return f.type === "file" && IMG.test(f.name); })
+            .sort(function (a, b) {
+                return a.name.replace(/\.[^.]+$/, "").localeCompare(b.name.replace(/\.[^.]+$/, ""), "en", { numeric: true, sensitivity: "base" });
+            })
+            .map(function (f) { return { src: FOLDER + "/" + encodeURIComponent(f.name), cap: caption(f.name) }; });
+
+        if (!photos.length) { statusEl.textContent = "No photos yet."; return; }
+        statusEl.hidden = true;
+        photos.forEach(function (p, i) {
+            var fig = document.createElement("figure"); fig.className = "tile"; fig.tabIndex = 0;
+            var img = document.createElement("img"); img.src = p.src; img.loading = "lazy"; img.alt = p.cap || "Photo of Ray";
+            fig.appendChild(img);
+            if (p.cap) { var fc = document.createElement("figcaption"); fc.textContent = p.cap; fig.appendChild(fc); }
+            fig.addEventListener("click", function () { open(i); });
+            fig.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(i); } });
+            gallery.appendChild(fig);
+        });
+    }
+
+    // Load the folder listing (cached for 10 minutes to stay well inside GitHub's limits)
+    var cached = null;
+    try { cached = JSON.parse(sessionStorage.getItem("gallery") || "null"); } catch (e) {}
+    if (cached && Date.now() - cached.t < 600000) {
+        render(cached.files);
+    } else {
+        fetch(API).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+            .then(function (files) {
+                var slim = files.map(function (f) { return { name: f.name, type: f.type }; });
+                try { sessionStorage.setItem("gallery", JSON.stringify({ t: Date.now(), files: slim })); } catch (e) {}
+                render(slim);
+            })
+            .catch(function () { statusEl.textContent = "The photos could not be loaded right now. Please try again in a few minutes."; });
+    }
+
+    // ---------- Viewer ----------
+    var viewer = document.getElementById("viewer"), vImg = document.getElementById("vImg"),
+        vCap = document.getElementById("vCap"), vCount = document.getElementById("vCount"), cur = 0, lastFocus = null;
+
+    function show(i) {
+        cur = (i + photos.length) % photos.length;
+        vImg.src = photos[cur].src; vImg.alt = photos[cur].cap || "Photo of Ray";
+        vCap.textContent = photos[cur].cap; vCount.textContent = (cur + 1) + " / " + photos.length;
+        new Image().src = photos[(cur + 1) % photos.length].src; // preload next
+    }
+    function open(i) { lastFocus = document.activeElement; show(i); viewer.classList.add("open"); document.body.style.overflow = "hidden"; document.getElementById("vClose").focus(); }
+    function close() { viewer.classList.remove("open"); document.body.style.overflow = ""; if (lastFocus) lastFocus.focus(); }
+
+    document.getElementById("vPrev").onclick = function () { show(cur - 1); };
+    document.getElementById("vNext").onclick = function () { show(cur + 1); };
+    document.getElementById("vClose").onclick = close;
+    viewer.addEventListener("click", function (e) { if (e.target === viewer) close(); });
+    document.addEventListener("keydown", function (e) {
+        if (!viewer.classList.contains("open")) return;
+        if (e.key === "Escape") close();
+        else if (e.key === "ArrowLeft") show(cur - 1);
+        else if (e.key === "ArrowRight") show(cur + 1);
+    });
+    var x0 = null;
+    viewer.addEventListener("touchstart", function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+    viewer.addEventListener("touchend", function (e) {
+        if (x0 === null) return; var dx = e.changedTouches[0].clientX - x0; x0 = null;
+        if (Math.abs(dx) > 50) show(cur + (dx < 0 ? 1 : -1));
+    });
+})();
+</script>
 </body>
 </html>
