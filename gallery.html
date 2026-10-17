@@ -17,6 +17,8 @@
         .tile img { width: 100%; height: 200px; object-fit: cover; display: block; background: #222; }
         .tile figcaption { padding: 9px 10px 10px; font-size: .85rem; color: #c7c7cc; text-align: left; line-height: 1.35; }
         .status { color: #8e8e93; margin: 40px 0; }
+        .notice { max-width: 640px; margin: 48px auto 0; font-size: .8rem; line-height: 1.6; color: #8e8e93; }
+        .notice a { color: #a1a1a6; }
 
         /* Viewer */
         .viewer { position: fixed; inset: 0; background: rgba(0,0,0,.94); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; padding: 16px; box-sizing: border-box; }
@@ -39,6 +41,12 @@
 
     <div class="gallery" id="gallery"></div>
     <p class="status" id="status">Loading photos…</p>
+
+    <footer class="notice">
+        &copy; Johnson family. All photos are from the family&rsquo;s private collection.
+        Please ask before reusing them. If you appear in a photo and would prefer it not to be shown,
+        let us know and it will be removed. &middot; <a href="privacy.html">Privacy / Datenschutz</a>
+    </footer>
 
     <div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Photo viewer">
         <span class="counter" id="vCount"></span>
